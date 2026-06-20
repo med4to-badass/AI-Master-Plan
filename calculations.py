@@ -81,3 +81,4 @@ def get_rewards_status(current_points: int, total_packages_bought: int, rules: d
         "milestone_500": mile,
         "summary_text": mile["progress_text"],
     }
+

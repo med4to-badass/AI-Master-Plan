@@ -9,8 +9,7 @@ from typing import Any, Dict, Optional
 
 from PIL import Image, ImageDraw, ImageFont
 
-from calculations import format_currency, get_next_package_info, get_milestone_progress, format_remaining_text
-
+from calculations import format_currency, get_milestone_progress
 
 def _hex_to_rgb(hex_color: str, fallback: tuple = (16, 185, 129)) -> tuple:
     color = (hex_color or "").strip().lstrip("#")
