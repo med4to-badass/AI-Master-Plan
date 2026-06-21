@@ -168,52 +168,31 @@ def generate_points_card(
 
         y = box_y + box_height + 28
 
-    # === PROGRESSO PARA PRÓXIMOS PRÊMIOS (o que o usuário pediu) ===
-    # Pacote grátis
-    pkg_info = get_next_package_info(current_points)
-    remaining_pkg = pkg_info["remaining"] if points_to_next_package == 0 else points_to_next_package
-
-    # Barra de progresso visual para o próximo pacote
+    # === PROGRESSO PARA CAFETEIRA (meta única: 500 pacotes) ===
     bar_width = width - 100
     bar_x = 50
     bar_y = y
     bar_height = 22
 
+    mile = get_milestone_progress(total_packages_bought, 500)
+
     # Fundo da barra
     draw.rounded_rectangle([(bar_x, bar_y), (bar_x + bar_width, bar_y + bar_height)], radius=10, fill=(51, 65, 85))
 
-    # Preenchimento (quanto já tem no ciclo atual)
-    cycle_progress = (pkg_info["points_in_current_cycle"] / pkg_info["threshold"]) if pkg_info["threshold"] > 0 else 0
-    fill_w = int(bar_width * cycle_progress)
+    # Preenchimento
+    fill_w = int(bar_width * (mile["percent"] / 100))
     if fill_w > 0:
         draw.rounded_rectangle([(bar_x, bar_y), (bar_x + fill_w, bar_y + bar_height)], radius=10, fill=accent)
 
-    # Texto do progresso do pacote
     y = bar_y + bar_height + 8
-    pkg_msg = pkg_info["message"] if remaining_pkg > 0 else "🎁 Pacote grátis disponível para resgate!"
-    draw.text((width // 2, y), pkg_msg, font=font_progress, fill=text_color if remaining_pkg > 0 else accent, anchor="mt")
+    if mile["reached"]:
+        cafe_msg = "🏆 Cafeteira conquistada! Parabéns!"
+        msg_fill = accent
+    else:
+        cafe_msg = f"Faltam {mile['remaining']} pacotes para a Cafeteira (meta 500)"
+        msg_fill = text_color
+    draw.text((width // 2, y), cafe_msg, font=font_progress, fill=msg_fill, anchor="mt")
     y += 24
-
-    if available_packages > 0:
-        draw.text((width // 2, y), f"Você já tem {available_packages} pacote(s) grátis para retirar!", font=font_label, fill=accent, anchor="mt")
-        y += 22
-
-    # Progresso do marco 500 (só aparece se o cliente já comprou uma quantidade razoável)
-    if total_packages_bought >= 100 or milestone_remaining < 200:
-        mile = get_milestone_progress(total_packages_bought)
-        if not mile["reached"]:
-            y += 6
-            draw.text((width // 2, y), f"🏆 Faltam {mile['remaining']} pacotes para a recompensa especial de 500", font=font_small, fill=muted, anchor="mt")
-            y += 18
-
-            # Barra pequena do milestone
-            mile_pct = min(1.0, total_packages_bought / 500)
-            small_bar_w = int((bar_width * 0.6) * mile_pct)
-            small_x = (width - int(bar_width * 0.6)) // 2
-            draw.rounded_rectangle([(small_x, y), (small_x + int(bar_width * 0.6), y + 8)], radius=4, fill=(51, 65, 85))
-            if small_bar_w > 0:
-                draw.rounded_rectangle([(small_x, y), (small_x + small_bar_w, y + 8)], radius=4, fill=primary)
-            y += 16
 
     # Rodapé premium
     y = height - 52

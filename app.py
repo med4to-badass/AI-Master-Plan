@@ -571,7 +571,7 @@ def render_client_portal():
     threshold = 10  # dummy, não usado
     rate = 1.0  # dummy
 
-    st.set_page_config(page_title=f"{client['name']} | IsoSoluções", page_icon="♻️", layout="centered")
+    # page_config já definido no módulo principal; não pode ser chamado novamente
 
     # Header bonito para cliente
     st.markdown('<div style="text-align:center; font-size:1.9rem; font-weight:700; margin-bottom:4px;"><span style="color:#0D9488;">Iso</span><span style="color:#B91C1C;">Soluções</span></div>', unsafe_allow_html=True)
@@ -1098,8 +1098,6 @@ filtered_clients = []
 for c in clients:
     if min_points > 0 and c["current_points"] < min_points:
         continue
-    # filtro de pacotes removido (sem resgate)
-        continue
     filtered_clients.append(c)
 
 # Tabela bonita de clientes
@@ -1300,7 +1298,7 @@ if st.session_state.selected_client_id:
                                     notes="Concedido automaticamente ao atingir 500 pontos.",
                                 )
                                 client = get_client_by_id(client["id"])
-                                wa_msg = build_milestone_reward_message(client, default_label)
+                                wa_msg = build_milestone_reward_message(client, "Cafeteira")
                                 wa_url = build_whatsapp_url(client["phone"], wa_msg)
                                 log_notification(
                                     client_id=client["id"],
