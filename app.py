@@ -654,7 +654,8 @@ def render_client_portal():
     st.divider()
     st.markdown("**Quer resgatar ou tirar dúvida?**")
     contact_msg = f"Olá! Sou {client['name']} (tel {client['phone']}). Meu saldo atual é de {client['current_points']} pontos. Quando chego em 500 ganho a Cafeteira!"
-    wa_link = f"https://wa.me/?text={contact_msg.replace(' ', '%20').replace('\n', '%0A')}"
+    _newline = '\n'
+    wa_link = f"https://wa.me/?text={contact_msg.replace(' ', '%20').replace(_newline, '%0A')}"
 
     if st.button("💬 Falar no WhatsApp com a equipe", type="primary", width='stretch'):
         st.markdown(f"[Abrir WhatsApp]({wa_link})", unsafe_allow_html=True)
