@@ -68,6 +68,22 @@ Write-Host "   - Reinicia sozinho se for encerrado" -ForegroundColor Gray
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host ""
 
+# --- Cria atalho na Area de Trabalho ---
+try {
+    $ws = New-Object -ComObject WScript.Shell
+    $desktop = [Environment]::GetFolderPath('Desktop')
+    $lnk = Join-Path $desktop 'Otimizador de Jogos Aura.lnk'
+    $s = $ws.CreateShortcut($lnk)
+    $s.TargetPath = Join-Path $Pasta 'INICIAR_OTIMIZADOR.bat'
+    $s.WorkingDirectory = $Pasta
+    $s.IconLocation = "$env:SystemRoot\System32\shell32.dll,18"
+    $s.Description = 'Otimizacao maxima de jogos 24/7 - Aura'
+    $s.Save()
+    Write-Host "✔ Atalho criado na Area de Trabalho: 'Otimizador de Jogos Aura'" -ForegroundColor Green
+} catch {
+    Write-Host "⚠ Nao foi possivel criar o atalho na Area de Trabalho." -ForegroundColor Yellow
+}
+
 # Inicia agora mesmo
 Start-ScheduledTask -TaskName $NomeTarefa
 Write-Host "Otimizador iniciado agora. Bons jogos! 🎮" -ForegroundColor Green

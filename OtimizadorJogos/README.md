@@ -32,6 +32,12 @@ Tudo é **revertido automaticamente** assim que o último jogo é fechado.
 Dê **duplo clique** em **`INICIAR_OTIMIZADOR.bat`**.
 Ele pede admin, instala o `psutil` se faltar e começa a monitorar. Pronto. 🎮
 
+> 🖥️ **Atalho na Área de Trabalho:** dê duplo clique em
+> **`CRIAR_ATALHO_DESKTOP.bat`** para colocar o ícone
+> *"Otimizador de Jogos Aura"* na sua área de trabalho — aí é só clicar nele
+> sempre que quiser ligar a otimização. (O instalador 24/7 da Opção B já cria
+> esse atalho automaticamente.)
+
 ### Opção B — Rodar 24/7 (recomendado)
 Para iniciar **sozinho a cada login**, oculto e com reinício automático:
 
