@@ -1,0 +1,65 @@
+{
+  "config": {
+    "intervalo_varredura_segundos": 4,
+    "modo_agressivo": true,
+    "plano_energia_alto_desempenho": true,
+    "liberar_memoria": true,
+    "throttle_background": true,
+    "suspender_background": false,
+    "habilitar_game_mode": true,
+    "preferencia_gpu_alto_desempenho": true,
+    "notificacoes": true
+  },
+  "perfil_padrao": {
+    "auto_detectar_por_pasta": true,
+    "prioridade": "alta",
+    "afinidade_cpu": null,
+    "liberar_memoria": true,
+    "desabilitar_otimizacao_tela_cheia": false
+  },
+  "jogos": {
+    "cs2.exe": { "nome": "Counter-Strike 2", "prioridade": "alta", "afinidade_cpu": null, "liberar_memoria": true },
+    "valorant.exe": { "nome": "VALORANT", "prioridade": "alta", "liberar_memoria": true },
+    "valorant-win64-shipping.exe": { "nome": "VALORANT (jogo)", "prioridade": "tempo_real", "liberar_memoria": true },
+    "leagueoflegends.exe": { "nome": "League of Legends", "prioridade": "alta" },
+    "fortniteclient-win64-shipping.exe": { "nome": "Fortnite", "prioridade": "alta", "liberar_memoria": true },
+    "gta5.exe": { "nome": "GTA V", "prioridade": "alta", "liberar_memoria": true },
+    "rdr2.exe": { "nome": "Red Dead Redemption 2", "prioridade": "alta" },
+    "cyberpunk2077.exe": { "nome": "Cyberpunk 2077", "prioridade": "alta" },
+    "eldenring.exe": { "nome": "Elden Ring", "prioridade": "alta" },
+    "r5apex.exe": { "nome": "Apex Legends", "prioridade": "alta", "liberar_memoria": true },
+    "minecraft.exe": { "nome": "Minecraft", "prioridade": "acima_do_normal" },
+    "javaw.exe": { "nome": "Minecraft (Java)", "prioridade": "acima_do_normal" },
+    "dota2.exe": { "nome": "Dota 2", "prioridade": "alta" },
+    "overwatch.exe": { "nome": "Overwatch 2", "prioridade": "alta" },
+    "tslgame.exe": { "nome": "PUBG", "prioridade": "alta", "liberar_memoria": true },
+    "warzone.exe": { "nome": "Call of Duty Warzone", "prioridade": "alta", "liberar_memoria": true },
+    "cod.exe": { "nome": "Call of Duty", "prioridade": "alta", "liberar_memoria": true }
+  },
+  "pastas_jogos": [
+    "steamapps\\common",
+    "steamapps/common",
+    "epic games",
+    "epicgames",
+    "gog galaxy\\games",
+    "gog games",
+    "riot games",
+    "ea games",
+    "electronic arts",
+    "ubisoft\\ubisoft game launcher\\games",
+    "battle.net",
+    "battlenet",
+    "xboxgames",
+    "windowsapps",
+    "rockstar games",
+    "origin games"
+  ],
+  "processos_background": [
+    "chrome.exe", "msedge.exe", "firefox.exe", "opera.exe", "opera_gx.exe", "brave.exe", "vivaldi.exe",
+    "discord.exe", "spotify.exe", "slack.exe", "teams.exe", "ms-teams.exe", "telegram.exe", "whatsapp.exe", "skype.exe",
+    "onedrive.exe", "dropbox.exe", "googledrivefs.exe",
+    "steamwebhelper.exe", "epicgameslauncher.exe", "origin.exe",
+    "googleupdate.exe", "jusched.exe", "adobeupdateservice.exe",
+    "searchapp.exe", "widgets.exe", "phonelink.exe", "yourphone.exe", "cortana.exe", "notion.exe", "obs64.exe"
+  ]
+}
