@@ -1098,8 +1098,6 @@ filtered_clients = []
 for c in clients:
     if min_points > 0 and c["current_points"] < min_points:
         continue
-    # filtro de pacotes removido (sem resgate)
-        continue
     filtered_clients.append(c)
 
 # Tabela bonita de clientes
@@ -1603,6 +1601,15 @@ with st.sidebar:
                         st.error(f"Erro: {e} (telefone pode já existir)")
                 else:
                     st.warning("Preencha nome e telefone.")
+
+    with st.expander("⚡ Forçar Reset das Janelas", expanded=False):
+        st.caption("Limpa todo o estado da sessão e recarrega o painel sem apagar dados de clientes.")
+        if st.button("🔄 RESET FORÇADO AGORA", type="primary", width='stretch', key="force_windows_reset_btn"):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.cache_data.clear()
+            st.cache_resource.clear()
+            st.rerun()
 
     st.divider()
 
