@@ -183,7 +183,7 @@ def generate_points_card(
     draw.rounded_rectangle([(bar_x, bar_y), (bar_x + bar_width, bar_y + bar_height)], radius=10, fill=(51, 65, 85))
 
     # Preenchimento (quanto já tem no ciclo atual)
-    cycle_progress = (pkg_info["points_in_current_cycle"] / pkg_info["threshold"]) if pkg_info["threshold"] > 0 else 0
+    cycle_progress = (pkg_info["total_bought"] / pkg_info["threshold"]) if pkg_info["threshold"] > 0 else 0
     fill_w = int(bar_width * cycle_progress)
     if fill_w > 0:
         draw.rounded_rectangle([(bar_x, bar_y), (bar_x + fill_w, bar_y + bar_height)], radius=10, fill=accent)
