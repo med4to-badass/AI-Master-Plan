@@ -1,0 +1,25 @@
+name: Reboot Streamlit após merge
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  reboot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reboot app no Streamlit Community Cloud
+        run: |
+          curl -s -o response.json -w "%{http_code}" -X POST \
+            "https://share.streamlit.io/api/v1/apps/${{ secrets.STREAMLIT_APP_ID }}/reboot" \
+            -H "Authorization: Bearer ${{ secrets.STREAMLIT_API_TOKEN }}" \
+            -H "Content-Type: application/json" > status.txt
+          STATUS=$(cat status.txt)
+          echo "HTTP Status: $STATUS"
+          cat response.json
+          if [ "$STATUS" != "200" ] && [ "$STATUS" != "204" ]; then
+            echo "Falha ao rebootar o app"
+            exit 1
+          fi
+          echo "App reiniciado com sucesso!"
