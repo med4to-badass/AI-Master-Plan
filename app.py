@@ -807,16 +807,37 @@ def render_notification_panel(notification: dict):
 
     if auto_open and notification["type"] == "purchase":
         import json
+        import base64
         safe_url = json.dumps(notification["wa_url"])
+        first_name = notification["client_name"].split()[0].lower()
+        card_b64 = ""
+        if notification.get("card_png"):
+            card_b64 = base64.b64encode(notification["card_png"]).decode()
+        file_name = json.dumps(f"cartao_pontos_{first_name}.png")
         st.components.v1.html(
             f"""
             <script>
-                window.open({safe_url}, "_blank");
+                (function() {{
+                    var b64 = {json.dumps(card_b64)};
+                    if (b64) {{
+                        var byteChars = atob(b64);
+                        var byteArr = new Uint8Array(byteChars.length);
+                        for (var i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
+                        var blob = new Blob([byteArr], {{type: "image/png"}});
+                        var a = document.createElement("a");
+                        a.href = URL.createObjectURL(blob);
+                        a.download = {file_name};
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    }}
+                    window.open({safe_url}, "_blank");
+                }})();
             </script>
             """,
             height=0,
         )
-        st.info("WhatsApp aberto automaticamente (configurável em Personalizar Programa).")
+        st.info("Cartão baixado e WhatsApp aberto automaticamente. Anexe o PNG na conversa antes de enviar.")
 
 
 def clear_selection():

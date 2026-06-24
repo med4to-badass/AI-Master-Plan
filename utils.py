@@ -35,7 +35,7 @@ def create_welcome_purchase_message(
     """Mensagem simples após compra (1 pacote = 1 ponto). Sem resgate."""
     first = client_name.split()[0] if client_name else "Parceiro"
 
-    msg = f"""Olá {first}! 👋
+    msg = f"""Olá {first}!
 
 +{final_points} ponto(s) por esta compra.
 
@@ -43,7 +43,7 @@ Saldo atual: {current_points} pontos
 
 Continue comprando para chegar aos 500 pontos e ganhar a Cafeteira!
 
-Obrigado! 💚"""
+Obrigado!"""
 
     return msg
 
