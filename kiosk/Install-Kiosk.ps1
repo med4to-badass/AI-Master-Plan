@@ -93,6 +93,7 @@ catch { Write-Warn "Git nao encontrado. Usarei download ZIP." }
 # 3. Baixar / atualizar o projeto
 # ---------------------------------------------------------------------------
 Write-Step "Obtendo o projeto em $InstallDir"
+$hasApp = Test-Path (Join-Path $InstallDir "requirements.txt")
 if (Test-Path "$InstallDir\.git" -PathType Container) {
     Push-Location $InstallDir
     git fetch origin $Branch 2>&1 | Out-Null
@@ -101,24 +102,35 @@ if (Test-Path "$InstallDir\.git" -PathType Container) {
     Pop-Location
     Write-Ok "Projeto atualizado."
 }
-elseif (Test-Path $InstallDir) {
-    Write-Warn "Pasta ja existe (sem .git). Mantendo conteudo atual."
+elseif ($hasApp) {
+    Write-Warn "Pasta ja existe com o app. Mantendo conteudo atual."
 }
 else {
+    # Pasta inexistente OU existente porem incompleta -> (re)baixar.
     New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     if ($temGit) {
-        git clone --branch $Branch $Repo $InstallDir 2>&1
+        $tmp = Join-Path $env:TEMP ("aura-clone-" + [guid]::NewGuid().ToString("N"))
+        git clone --branch $Branch $Repo $tmp 2>&1
+        Copy-Item "$tmp\*" $InstallDir -Recurse -Force
+        Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
         Write-Ok "Repositorio clonado."
     } else {
         # Branch com barra (ex.: claude/x) -> a pasta extraida troca / por -
         $safe = $Branch -replace '[/\\]','-'
         $zip = "$env:TEMP\aura.zip"
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         Invoke-WebRequest "https://github.com/med4to-badass/AI-Master-Plan/archive/refs/heads/$Branch.zip" -OutFile $zip
         Expand-Archive $zip -DestinationPath $env:TEMP -Force
         Copy-Item "$env:TEMP\AI-Master-Plan-$safe\*" $InstallDir -Recurse -Force
         Write-Ok "Projeto baixado e extraido."
     }
+}
+
+# Verificacao: o app precisa estar presente para continuar.
+if (-not (Test-Path (Join-Path $InstallDir "requirements.txt"))) {
+    Write-Host "ERRO: nao encontrei requirements.txt em $InstallDir apos o download." -ForegroundColor Red
+    Write-Host "Apague a pasta e rode de novo:  Remove-Item '$InstallDir' -Recurse -Force" -ForegroundColor Yellow
+    exit 1
 }
 
 # ---------------------------------------------------------------------------
