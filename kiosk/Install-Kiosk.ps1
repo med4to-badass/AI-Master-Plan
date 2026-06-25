@@ -110,10 +110,13 @@ else {
         git clone --branch $Branch $Repo $InstallDir 2>&1
         Write-Ok "Repositorio clonado."
     } else {
+        # Branch com barra (ex.: claude/x) -> a pasta extraida troca / por -
+        $safe = $Branch -replace '[/\\]','-'
         $zip = "$env:TEMP\aura.zip"
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         Invoke-WebRequest "https://github.com/med4to-badass/AI-Master-Plan/archive/refs/heads/$Branch.zip" -OutFile $zip
         Expand-Archive $zip -DestinationPath $env:TEMP -Force
-        Copy-Item "$env:TEMP\AI-Master-Plan-$Branch\*" $InstallDir -Recurse -Force
+        Copy-Item "$env:TEMP\AI-Master-Plan-$safe\*" $InstallDir -Recurse -Force
         Write-Ok "Projeto baixado e extraido."
     }
 }
