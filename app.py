@@ -847,42 +847,49 @@ def render_notification_panel(notification: dict):
         st.success(f"Aviso preparado para **{notification['client_name']}**.")
 
     has_card = notification.get("card_png") is not None
+
+    # Cartão centralizado (max 375px) — sem colunas, funciona em qualquer tela
     if has_card:
-        notif_col1, notif_col2 = st.columns([1, 1])
-    else:
-        notif_col2 = st.container()
+        import base64 as _b64
+        card_b64 = _b64.b64encode(notification["card_png"]).decode()
+        st.markdown(
+            f"""
+            <div style="display:flex; justify-content:center; margin-bottom:0.75rem;">
+                <img src="data:image/png;base64,{card_b64}"
+                     style="width:100%; max-width:375px; border-radius:14px; box-shadow:0 4px 24px rgba(0,0,0,0.5);" />
+            </div>
+            <p style="text-align:center; color:#64748b; font-size:0.82rem; margin-top:-0.5rem;">Cartão de Fidelidade</p>
+            """,
+            unsafe_allow_html=True,
+        )
 
-    if has_card:
-        with notif_col1:
-            st.image(notification["card_png"], caption="Cartão de Fidelidade", width='stretch')
+    st.markdown("**Mensagem para WhatsApp:**")
+    st.code(notification["message"], language=None)
 
-    with notif_col2:
-        st.markdown("**Mensagem para WhatsApp:**")
-        st.code(notification["message"], language=None)
-
+    btn_col1, btn_col2 = st.columns(2)
+    with btn_col1:
         if has_card:
             st.download_button(
-                label="1️⃣ Baixar Cartão de Pontos (PNG)",
+                label="1️⃣ Baixar Cartão (PNG)",
                 data=notification["card_png"],
                 file_name=f"cartao_pontos_{notification['client_name'].split()[0].lower()}.png",
                 mime="image/png",
                 width='stretch',
             )
-
+    with btn_col2:
         st.link_button(
-            "2️⃣ Abrir WhatsApp e enviar mensagem",
+            "2️⃣ Abrir WhatsApp",
             notification["wa_url"],
             type="primary",
             width='stretch',
         )
 
-        if has_card:
-            st.caption("Baixe o cartão (passo 1), abra o WhatsApp (passo 2) e envie o PNG como anexo junto com a mensagem.")
+    if has_card:
+        st.caption("Baixe o cartão (passo 1), abra o WhatsApp (passo 2) e envie o PNG como anexo junto com a mensagem.")
 
-        # Automação: após clicar no WhatsApp, o admin pode limpar o painel de aviso
-        if st.button("✅ Limpar este aviso (após enviar)", key=f"clear_notif_{notification.get('client_name','')}", width='stretch'):
-            st.session_state.pending_notification = None
-            st.rerun()
+    if st.button("✅ Limpar este aviso (após enviar)", key=f"clear_notif_{notification.get('client_name','')}", width='stretch'):
+        st.session_state.pending_notification = None
+        st.rerun()
 
     if auto_open and notification["type"] == "purchase":
         import json
