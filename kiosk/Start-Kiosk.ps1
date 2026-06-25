@@ -33,6 +33,19 @@ $Streamlit= Join-Path $Root "venv_win\Scripts\streamlit.exe"
 $Profile  = Join-Path $env:LOCALAPPDATA "AuraKiosk\browser-profile"
 New-Item -ItemType Directory -Path $Profile -Force | Out-Null
 
+# Tela de carregamento -> redireciona para o app quando ficar pronto.
+$LoadingPath = Join-Path $ScriptDir "loading.html"
+$StartUrl    = if (Test-Path $LoadingPath) {
+    "file:///" + ($LoadingPath -replace '\\','/') + "#" + $Url
+} else { $Url }
+
+# Experiencia nativa: esconde barra/menu do Streamlit e reduz consumo.
+$env:STREAMLIT_CLIENT_TOOLBAR_MODE        = "minimal"
+$env:STREAMLIT_CLIENT_SHOW_ERROR_DETAILS  = "false"
+$env:STREAMLIT_SERVER_FILE_WATCHER_TYPE   = "none"
+$env:STREAMLIT_SERVER_RUN_ON_SAVE         = "false"
+$env:STREAMLIT_BROWSER_GATHER_USAGE_STATS = "false"
+
 function Log($m) { Write-Host ("[{0}] {1}" -f (Get-Date -Format HH:mm:ss), $m) -ForegroundColor Cyan }
 
 # ---------------------------------------------------------------------------
@@ -92,18 +105,22 @@ if (-not $Browser) { Log "ERRO: Edge/Chrome nao encontrado."; exit 1 }
 Log "Navegador: $Browser"
 
 $BrowserArgs = @(
-    "--kiosk", $Url,
+    "--kiosk", $StartUrl,
     "--user-data-dir=$Profile",
     "--no-first-run",
     "--no-default-browser-check",
     "--disable-pinch",
     "--overscroll-history-navigation=0",
-    "--disable-features=TranslateUI,Translate",
+    "--disable-features=TranslateUI,Translate,AutofillServerCommunication",
     "--disable-session-crashed-bubble",
     "--disable-infobars",
     "--noerrdialogs",
     "--check-for-update-interval=31536000",
     "--password-store=basic",
+    "--disable-sync",
+    "--disable-background-networking",
+    "--disable-component-update",
+    "--hide-scrollbars",
     "--start-fullscreen"
 )
 

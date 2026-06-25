@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<!--
+  loading.html — Tela de carregamento nativa do quiosque.
+  Mostra um spinner enquanto o servidor Streamlit sobe e redireciona
+  automaticamente quando ele fica saudavel. O destino vem no fragmento (#)
+  da URL, ex.:  loading.html#http://localhost:8501/?view=cliente
+-->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Aura</title>
+<style>
+  :root { --emerald:#10b981; --blue:#3b82f6; }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%; margin: 0;
+    background: radial-gradient(1200px 800px at 50% 30%, #0f172a 0%, #020617 70%);
+    color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden; cursor: none;
+    -webkit-user-select: none; user-select: none;
+  }
+  .wrap {
+    height: 100%; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 28px; text-align: center;
+  }
+  .logo {
+    font-size: 56px; font-weight: 800; letter-spacing: 1px;
+    background: linear-gradient(90deg, var(--emerald), var(--blue));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .spinner {
+    width: 64px; height: 64px; border-radius: 50%;
+    border: 5px solid rgba(255,255,255,.12);
+    border-top-color: var(--emerald);
+    border-right-color: var(--blue);
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .msg { font-size: 18px; color: #94a3b8; }
+  .dots::after { content: ""; animation: dots 1.4s steps(4,end) infinite; }
+  @keyframes dots { 0%{content:""} 25%{content:"."} 50%{content:".."} 75%{content:"..."} 100%{content:""} }
+  .err { color:#f59e0b; font-size:14px; max-width:520px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo">Aura</div>
+    <div class="spinner"></div>
+    <div class="msg">Carregando o painel<span class="dots"></span></div>
+    <div class="err" id="err"></div>
+  </div>
+<script>
+  // Destino vem apos o # ; senao usa o padrao local.
+  var target = decodeURIComponent(location.hash.slice(1)) || "http://localhost:8501/";
+  var health;
+  try { health = new URL(target).origin + "/_stcore/health"; }
+  catch (e) { health = "http://localhost:8501/_stcore/health"; }
+
+  var tries = 0;
+  function check() {
+    tries++;
+    // no-cors: resolve quando o servidor responde (mesmo sem header CORS),
+    // rejeita enquanto a porta ainda nao aceita conexao.
+    fetch(health, { mode: "no-cors", cache: "no-store" })
+      .then(function () { location.replace(target); })
+      .catch(function () {
+        if (tries > 8) {
+          document.getElementById("err").textContent =
+            "Iniciando o servidor... isso pode levar alguns segundos.";
+        }
+        setTimeout(check, 1000);
+      });
+  }
+  check();
+</script>
+</body>
+</html>

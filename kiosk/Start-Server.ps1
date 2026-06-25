@@ -29,6 +29,16 @@ Set-Location $Root
 $python = Join-Path $Root "venv_win\Scripts\python.exe"
 if (-not (Test-Path $python)) { $python = "python" }
 
+# --- Experiencia nativa: esconde "cara de web" e reduz consumo ---------------
+# Barra/menu do Streamlit em modo minimo (sem botoes de deploy/rerun/etc).
+$env:STREAMLIT_CLIENT_TOOLBAR_MODE        = "minimal"
+$env:STREAMLIT_CLIENT_SHOW_ERROR_DETAILS  = "false"
+# Sem file-watcher (menos CPU; o app nao muda em producao).
+$env:STREAMLIT_SERVER_FILE_WATCHER_TYPE   = "none"
+$env:STREAMLIT_SERVER_RUN_ON_SAVE         = "false"
+$env:STREAMLIT_BROWSER_GATHER_USAGE_STATS = "false"
+$env:STREAMLIT_GLOBAL_DEVELOPMENT_MODE    = "false"
+
 # Bloqueante: mantem a tarefa viva. Aceita conexoes locais do Edge em localhost.
 & $python -m streamlit run $AppFile `
     --server.port $Port `

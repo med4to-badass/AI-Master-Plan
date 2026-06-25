@@ -31,6 +31,24 @@ Em ambos, o servidor Streamlit (Python) roda localmente por trás.
 | `Start-Server.ps1` | Sobe **apenas** o servidor (usado pelo modo A, no boot/SYSTEM). |
 | `Start-Kiosk.ps1` | **Modo B:** sobe o servidor e abre o navegador em tela cheia. |
 | `Stop-Kiosk.ps1` | Encerra o modo B; com `-Uninstall` remove autostart e atalhos. |
+| `loading.html` | Tela de carregamento com a marca; redireciona ao app quando pronto. |
+
+## ✨ Otimizações nativas (aplicadas automaticamente)
+
+Para deixar a experiência o mais próxima de um app nativo:
+
+- **Tela de carregamento** (`loading.html`): em vez do erro "não foi possível
+  acessar", mostra um spinner com a marca **Aura** enquanto o servidor sobe e
+  redireciona sozinho quando ele fica pronto. *(Padrão no modo B; no modo A use
+  `-UseSplash`.)*
+- **App sem "cara de web"**: a barra/menu do Streamlit fica em modo `minimal`
+  (sem botões de deploy/rerun), via variáveis de ambiente — sem alterar o app.
+- **Edge sem distrações** (modo A, via políticas de máquina): **sem
+  preenchimento automático**, sem gerenciador de senhas, sem login/sync, sem
+  tradução, sem recomendações e sem balões de aviso.
+- **Energia**: tela e PC **nunca dormem** e **sem tela de bloqueio** — o painel
+  fica sempre visível.
+- **Menos consumo**: file-watcher desligado e telemetria off.
 
 ---
 
@@ -58,7 +76,11 @@ Parâmetros úteis:
 .\Set-WindowsKiosk.ps1 -Port 8080
 .\Set-WindowsKiosk.ps1 -KioskUser "Recepcao"
 .\Set-WindowsKiosk.ps1 -Url "http://localhost:8501/?view=cliente"
+.\Set-WindowsKiosk.ps1 -UseSplash    # mostra loading.html antes do app
 ```
+> Por padrão o modo A abre o app **direto** (mais robusto no kiosk nativo). O
+> servidor já sobe no **boot** (antes do logon), então normalmente já está
+> pronto quando o Edge abre. Use `-UseSplash` se quiser a tela de carregamento.
 
 > Se a aplicação automática falhar, dá pra fazer pela interface:
 > *Configurações → Contas → Outros usuários → Configurar um quiosque →

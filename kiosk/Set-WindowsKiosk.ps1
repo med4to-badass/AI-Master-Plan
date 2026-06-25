@@ -31,7 +31,8 @@ param(
     [string]$InstallDir = "C:\AuraKiosk",
     [int]   $Port       = 8501,
     [string]$KioskUser  = "QuiosqueAura",
-    [string]$Url        = ""
+    [string]$Url        = "",
+    [switch]$UseSplash   # usa loading.html antes do app (file://). Padrao: URL direta.
 )
 
 $ErrorActionPreference = "Stop"
@@ -109,11 +110,76 @@ Start-ScheduledTask -TaskName "AuraServer" -ErrorAction SilentlyContinue
 Unregister-ScheduledTask -TaskName "AuraKiosk" -Confirm:$false -ErrorAction SilentlyContinue
 
 # ---------------------------------------------------------------------------
-# 3. XML do Assigned Access (Edge kiosk -> localhost)
+# 3. Otimizacoes nativas: politicas do Edge + energia + sem bloqueio de tela
+# ---------------------------------------------------------------------------
+Write-Step "Aplicando otimizacoes (Edge, energia, tela)"
+
+# 3a. Politicas do Edge (maquina toda) — remove autofill/senhas/sync/nags,
+#     que sao justamente os popups que atrapalham num quiosque.
+$pol = "HKLM:\SOFTWARE\Policies\Microsoft\Edge"
+New-Item -Path $pol -Force | Out-Null
+$edgePolicies = @{
+    HideFirstRunExperience               = 1
+    AutofillAddressEnabled               = 0
+    AutofillCreditCardEnabled            = 0
+    PasswordManagerEnabled               = 0
+    BrowserSignin                        = 0   # 0 = sign-in desabilitado
+    SyncDisabled                         = 1
+    TranslateEnabled                     = 0
+    DefaultBrowserSettingEnabled         = 0
+    ShowRecommendationsEnabled           = 0
+    EdgeShoppingAssistantEnabled         = 0
+    HubsSidebarEnabled                   = 0
+    BackgroundModeEnabled                = 0
+    StartupBoostEnabled                  = 0
+    PromotionalTabsEnabled               = 0
+    EdgeCollectionsEnabled               = 0
+    PersonalizationReportingEnabled      = 0
+    SpotlightExperiencesAndRecommendationsEnabled = 0
+    ConfigureDoNotTrack                  = 1
+    AutoImportAtFirstRun                 = 4   # 4 = nao importar nada
+}
+foreach ($k in $edgePolicies.Keys) {
+    New-ItemProperty -Path $pol -Name $k -Value $edgePolicies[$k] -PropertyType DWord -Force | Out-Null
+}
+Write-Ok "Politicas do Edge aplicadas (sem autofill/senha/sync/nags)."
+
+# 3b. Energia: tela e PC NUNCA dormem (AC e bateria).
+foreach ($p in @("monitor-timeout-ac","monitor-timeout-dc",
+                 "standby-timeout-ac","standby-timeout-dc",
+                 "hibernate-timeout-ac","hibernate-timeout-dc",
+                 "disk-timeout-ac","disk-timeout-dc")) {
+    & powercfg /change $p 0 2>$null
+}
+Write-Ok "Energia configurada (sem suspensao/desligar tela)."
+
+# 3c. Sem tela de bloqueio (vai direto pro app).
+$perso = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization"
+New-Item -Path $perso -Force | Out-Null
+New-ItemProperty -Path $perso -Name "NoLockScreen" -Value 1 -PropertyType DWord -Force | Out-Null
+Write-Ok "Tela de bloqueio desativada."
+
+# ---------------------------------------------------------------------------
+# 4. XML do Assigned Access (Edge kiosk -> tela de carregamento -> app)
 # ---------------------------------------------------------------------------
 Write-Step "Aplicando configuracao de quiosque (Assigned Access)"
 $profileId = [guid]::NewGuid().ToString("B")  # {xxxx-...}
-$edgeArgs  = "--kiosk $Url --edge-kiosk-type=fullscreen --no-first-run --kiosk-idle-timeout-minutes=0"
+
+# Por padrao abre o app direto (mais robusto no kiosk nativo). Com -UseSplash,
+# abre a tela de carregamento (file://) que redireciona quando o app sobe.
+# Como o servidor inicia no BOOT (antes do logon), ele costuma ja estar pronto.
+$loadingPath = Join-Path $InstallDir "kiosk\loading.html"
+$startUrl = if ($UseSplash -and (Test-Path $loadingPath)) {
+    "file:///" + ($loadingPath -replace '\\','/') + "#" + $Url
+} else { $Url }
+
+$edgeArgs = "--kiosk `"$startUrl`" --edge-kiosk-type=fullscreen --no-first-run " +
+            "--kiosk-idle-timeout-minutes=0 --disable-sync --disable-features=Translate,TranslateUI " +
+            "--no-default-browser-check --disable-background-networking --hide-scrollbars"
+
+# Escapa para uso seguro em atributos XML (& < > " ')
+$edgeAttr = [System.Security.SecurityElement]::Escape($edgeArgs)
+$pathAttr = [System.Security.SecurityElement]::Escape($edge)
 
 # Schema v5 (2021) permite KioskModeApp com app classico (Win32 Edge)
 $xml = @"
@@ -123,8 +189,8 @@ $xml = @"
   xmlns:v5="http://schemas.microsoft.com/AssignedAccess/2021/config">
   <Profiles>
     <Profile Id="$profileId">
-      <KioskModeApp v5:ClassicAppPath="$edge"
-                    v5:ClassicAppArguments="$edgeArgs" />
+      <KioskModeApp v5:ClassicAppPath="$pathAttr"
+                    v5:ClassicAppArguments="$edgeAttr" />
     </Profile>
   </Profiles>
   <Configs>

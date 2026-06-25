@@ -45,7 +45,14 @@ Get-CimInstance Win32_Process -Filter "Name='python.exe' OR Name='streamlit.exe'
     Where-Object { $_.CommandLine -match 'streamlit' -or $_.CommandLine -match 'app\.py' } |
     ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
 
-# 4. (Opcional) apagar a conta
+# 4. Reverter otimizacoes (politicas do Edge + tela de bloqueio)
+Remove-Item "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" `
+    -Name "NoLockScreen" -ErrorAction SilentlyContinue
+Write-Ok "Politicas do Edge e tela de bloqueio revertidas."
+Write-Host "  (As configuracoes de energia foram mantidas; ajuste em Configuracoes se quiser.)" -ForegroundColor Gray
+
+# 5. (Opcional) apagar a conta
 if ($RemoveUser) {
     Remove-LocalUser -Name $KioskUser -ErrorAction SilentlyContinue
     Write-Ok "Conta '$KioskUser' removida."
