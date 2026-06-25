@@ -31,6 +31,7 @@ BAR_BOT = 1021
 
 # Cores
 TEAL  = (0, 224, 214)
+NEON_RED = (255, 45, 55)
 WHITE = (240, 245, 250)
 MUTED = (150, 170, 190)
 BG    = (32, 40, 47)
@@ -121,6 +122,21 @@ def _progress_bar(img: Image.Image, pct: float) -> Image.Image:
     return img
 
 
+def _draw_brand_title(img: Image.Image) -> Image.Image:
+    """Desenha 'Cartão' (vermelho neon) + 'Fidelidade' (teal neon) abaixo do logo."""
+    font = _load_font(46, bold=True)
+    draw = ImageDraw.Draw(img)
+    gap = draw.textlength(" ", font=font)
+    w1 = draw.textlength("Cartão", font=font)
+    w2 = draw.textlength("Fidelidade", font=font)
+    total = w1 + gap + w2
+    x0 = CX - total / 2
+    y = 462
+    img = _glow(img, (x0, y), "Cartão", font, NEON_RED, NEON_RED, radius=10, anchor="lm")
+    img = _glow(img, (x0 + w1 + gap, y), "Fidelidade", font, TEAL, TEAL, radius=10, anchor="lm")
+    return img
+
+
 def generate_points_card(
     client_name: str,
     points_earned: int,
@@ -138,6 +154,7 @@ def generate_points_card(
     is_milestone = pkg_info["reached"]
 
     img = Image.open(CARD_TEMPLATE).convert("RGB")
+    img = _draw_brand_title(img)
 
     if is_milestone:
         # ── CARTÃO MILESTONE (500 pontos atingidos) ──────────────────────────
