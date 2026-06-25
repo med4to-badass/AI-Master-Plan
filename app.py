@@ -854,7 +854,7 @@ def render_notification_panel(notification: dict):
 
     if has_card:
         with notif_col1:
-            st.image(notification["card_png"], caption="Cartão de Fidelidade", use_container_width=True)
+            st.image(notification["card_png"], caption="Cartão de Fidelidade", width='stretch')
 
     with notif_col2:
         st.markdown("**Mensagem para WhatsApp:**")
@@ -1075,7 +1075,7 @@ with chart_col1:
             yaxis2=dict(title="Pontos", overlaying="y", side="right", gridcolor="#334155", tickfont=dict(color="#94a3b8")),
             font=dict(color="#cbd5e1"),
         )
-        st.plotly_chart(fig1, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(fig1, width='stretch', config={"displayModeBar": False})
     else:
         st.info("Sem dados de histórico mensal ainda.")
     st.markdown('</div>', unsafe_allow_html=True)
@@ -1123,7 +1123,7 @@ with chart_col3:
             yaxis=dict(gridcolor="#334155", tickfont=dict(size=11)),
             font=dict(color="#cbd5e1"),
         )
-        st.plotly_chart(fig3, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(fig3, width='stretch', config={"displayModeBar": False})
     else:
         st.info("Sem clientes suficientes para ranking.")
     st.markdown('</div>', unsafe_allow_html=True)
@@ -1557,7 +1557,7 @@ if st.session_state.selected_client_id:
                     height=220,
                     margin=dict(l=10, r=10, t=30, b=10),
                 )
-                st.plotly_chart(fig_cum, use_container_width=True, config={"displayModeBar": False})
+                st.plotly_chart(fig_cum, width='stretch', config={"displayModeBar": False})
         else:
             st.caption("Ainda não há movimentações para este cliente.")
 
