@@ -333,69 +333,140 @@ st.markdown("""
 .badge-slate { background: #334155; color: #cbd5e1; }
 
 /* ==================== MOBILE RESPONSIVENESS ==================== */
-@media (max-width: 768px) {
+
+/* Tablet: 2 colunas por linha para os KPIs */
+@media (max-width: 900px) {
     .block-container {
-        padding-left: 0.5rem !important;
-        padding-right: 0.5rem !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+
+    .main-header h1 {
+        font-size: 1.3rem !important;
+    }
+
+    .kpi-card .kpi-value {
+        font-size: 1.5rem !important;
+    }
+}
+
+/* Celular: empilha tudo */
+@media (max-width: 640px) {
+    .block-container {
+        padding-left: 0.4rem !important;
+        padding-right: 0.4rem !important;
+        padding-top: 0.5rem !important;
         max-width: 100% !important;
     }
 
     .main-header {
-        padding: 0.75rem 1rem !important;
-        margin-bottom: 1rem !important;
+        padding: 0.65rem 0.85rem !important;
+        margin-bottom: 0.65rem !important;
+        border-radius: 10px !important;
     }
 
     .main-header h1 {
-        font-size: 1.4rem !important;
+        font-size: 1.1rem !important;
     }
 
-    .kpi-card {
-        padding: 0.7rem 0.9rem !important;
-        margin-bottom: 0.5rem;
+    .main-header .subtitle {
+        font-size: 0.8rem !important;
     }
 
-    .kpi-card .kpi-value {
-        font-size: 1.4rem !important;
-    }
-
-    .section-header {
-        font-size: 1rem !important;
-    }
-
-    .client-selected {
-        padding: 0.9rem 1rem !important;
-    }
-
-    .client-name {
-        font-size: 1.15rem !important;
-    }
-
-    /* Force columns to stack nicely on mobile */
+    /* Empilha TODAS as colunas do Streamlit */
     [data-testid="column"] {
+        width: 100% !important;
+        flex: 1 1 100% !important;
         min-width: 100% !important;
     }
 
-    /* Bigger touch targets */
-    .stButton > button, .stForm button {
-        min-height: 44px !important;
-        font-size: 1rem !important;
+    .kpi-card {
+        padding: 0.6rem 0.8rem !important;
+        margin-bottom: 0.35rem;
+        border-radius: 10px !important;
     }
 
-    /* Better tables on mobile */
+    .kpi-card .kpi-value {
+        font-size: 1.35rem !important;
+    }
+
+    .kpi-card .kpi-label {
+        font-size: 0.7rem !important;
+    }
+
+    .section-header {
+        font-size: 0.9rem !important;
+        margin: 1rem 0 0.5rem !important;
+    }
+
+    .client-selected {
+        padding: 0.7rem 0.85rem !important;
+        border-radius: 12px !important;
+    }
+
+    .client-name {
+        font-size: 1.1rem !important;
+    }
+
+    /* Imagem do cartão PNG ocupa toda a largura */
+    .stImage > img {
+        width: 100% !important;
+        height: auto !important;
+        border-radius: 12px;
+    }
+
+    /* Alvos de toque maiores */
+    .stButton > button,
+    .stForm button[type="submit"],
+    .stDownloadButton > button,
+    .stLinkButton > a {
+        min-height: 46px !important;
+        font-size: 0.97rem !important;
+    }
+
+    /* Tabelas: scroll horizontal */
     .stDataFrame {
-        font-size: 0.85rem !important;
+        font-size: 0.8rem !important;
+        overflow-x: auto !important;
     }
 
-    /* Progress bars */
-    .stProgress {
-        margin-bottom: 0.5rem;
+    /* Gráficos: altura reduzida no celular */
+    .js-plotly-plot .plot-container {
+        max-height: 260px;
+    }
+
+    /* Código/mensagem WhatsApp */
+    .whatsapp-box {
+        font-size: 0.8rem !important;
+    }
+
+    /* Inputs maiores para toque */
+    .stTextInput input,
+    .stNumberInput input,
+    .stDateInput input,
+    .stTextArea textarea {
+        font-size: 1rem !important;
+        padding: 0.5rem 0.75rem !important;
+    }
+
+    /* Selectbox */
+    .stSelectbox [data-baseweb="select"] {
+        font-size: 0.95rem !important;
     }
 }
 
-/* Extra tight for very small phones */
-@media (max-width: 480px) {
+/* Extra tight para telas < 380px */
+@media (max-width: 380px) {
     .kpi-card .kpi-value {
-        font-size: 1.2rem !important;
+        font-size: 1.15rem !important;
+    }
+
+    .main-header h1 {
+        font-size: 0.95rem !important;
+    }
+
+    .stButton > button {
+        font-size: 0.9rem !important;
     }
 }
 
@@ -780,7 +851,7 @@ def render_notification_panel(notification: dict):
 
     if has_card:
         with notif_col1:
-            st.image(notification["card_png"], caption="Cartão de Fidelidade", width='stretch')
+            st.image(notification["card_png"], caption="Cartão de Fidelidade", use_container_width=True)
 
     with notif_col2:
         st.markdown("**Mensagem para WhatsApp:**")
@@ -1001,7 +1072,7 @@ with chart_col1:
             yaxis2=dict(title="Pontos", overlaying="y", side="right", gridcolor="#334155", tickfont=dict(color="#94a3b8")),
             font=dict(color="#cbd5e1"),
         )
-        st.plotly_chart(fig1, width='stretch', config={"displayModeBar": False})
+        st.plotly_chart(fig1, use_container_width=True, config={"displayModeBar": False})
     else:
         st.info("Sem dados de histórico mensal ainda.")
     st.markdown('</div>', unsafe_allow_html=True)
@@ -1049,7 +1120,7 @@ with chart_col3:
             yaxis=dict(gridcolor="#334155", tickfont=dict(size=11)),
             font=dict(color="#cbd5e1"),
         )
-        st.plotly_chart(fig3, width='stretch', config={"displayModeBar": False})
+        st.plotly_chart(fig3, use_container_width=True, config={"displayModeBar": False})
     else:
         st.info("Sem clientes suficientes para ranking.")
     st.markdown('</div>', unsafe_allow_html=True)
@@ -1483,7 +1554,7 @@ if st.session_state.selected_client_id:
                     height=220,
                     margin=dict(l=10, r=10, t=30, b=10),
                 )
-                st.plotly_chart(fig_cum, width='stretch', config={"displayModeBar": False})
+                st.plotly_chart(fig_cum, use_container_width=True, config={"displayModeBar": False})
         else:
             st.caption("Ainda não há movimentações para este cliente.")
 
