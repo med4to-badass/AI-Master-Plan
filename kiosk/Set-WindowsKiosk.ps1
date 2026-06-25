@@ -202,18 +202,54 @@ $xml = @"
 </AssignedAccessConfiguration>
 "@
 
-# Aplica via WMI bridge (MDM_AssignedAccess) — metodo oficial fora de MDM
-$ns    = "root\cimv2\mdm\dmmap"
-$class = "MDM_AssignedAccess"
-$obj   = Get-CimInstance -Namespace $ns -ClassName $class
-$obj.Configuration = [System.Net.WebUtility]::HtmlEncode($xml)
+# A ponte WMI (MDM_AssignedAccess) SO existe na conta SYSTEM. Como admin comum
+# o Get-CimInstance volta nulo. Por isso aplicamos via uma tarefa agendada
+# de uso unico que roda como SYSTEM.
+$work = Join-Path $env:ProgramData "AuraKiosk"
+New-Item -ItemType Directory -Path $work -Force | Out-Null
+$xmlPath    = Join-Path $work "assignedaccess.xml"
+$applyPath  = Join-Path $work "apply-assignedaccess.ps1"
+$resultPath = Join-Path $work "apply-result.txt"
+Remove-Item $resultPath -ErrorAction SilentlyContinue
+Set-Content -Path $xmlPath -Value $xml -Encoding UTF8
+
+# Script que roda como SYSTEM e aplica a configuracao.
+$applyBody = @'
+param([string]$XmlPath,[string]$ResultPath)
 try {
-    Set-CimInstance -CimInstance $obj
-    Write-Ok "Quiosque nativo aplicado para a conta '$KioskUser'."
+    $xml = Get-Content -Raw -Path $XmlPath
+    $obj = Get-CimInstance -Namespace "root\cimv2\mdm\dmmap" -ClassName "MDM_AssignedAccess"
+    if (-not $obj) { throw "MDM_AssignedAccess indisponivel (edicao do Windows nao suporta?)" }
+    $obj.Configuration = [System.Net.WebUtility]::HtmlEncode($xml)
+    Set-CimInstance -CimInstance $obj -ErrorAction Stop
+    "OK" | Set-Content -Path $ResultPath -Encoding UTF8
 } catch {
-    Write-Host "Falha ao aplicar Assigned Access: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Warn "Alternativa: Configuracoes > Contas > Outros usuarios > Configurar um quiosque,"
-    Write-Warn "escolha Microsoft Edge e informe a URL: $Url"
+    "ERRO: $($_.Exception.Message)" | Set-Content -Path $ResultPath -Encoding UTF8
+}
+'@
+Set-Content -Path $applyPath -Value $applyBody -Encoding UTF8
+
+$act  = New-ScheduledTaskAction -Execute "powershell.exe" `
+    -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$applyPath`" -XmlPath `"$xmlPath`" -ResultPath `"$resultPath`""
+$prin = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+Register-ScheduledTask -TaskName "AuraApplyKiosk" -Action $act -Principal $prin -Force | Out-Null
+Start-ScheduledTask -TaskName "AuraApplyKiosk"
+
+# Espera o resultado (ate ~30s)
+$result = $null
+foreach ($i in 1..30) {
+    Start-Sleep -Seconds 1
+    if (Test-Path $resultPath) { $result = (Get-Content -Raw $resultPath).Trim(); break }
+}
+Unregister-ScheduledTask -TaskName "AuraApplyKiosk" -Confirm:$false -ErrorAction SilentlyContinue
+
+if ($result -eq "OK") {
+    Write-Ok "Quiosque nativo aplicado para a conta '$KioskUser'."
+} else {
+    Write-Host "Falha ao aplicar Assigned Access: $result" -ForegroundColor Red
+    Write-Warn "Alternativa manual (funciona sempre):"
+    Write-Warn "Configuracoes > Contas > Outros usuarios > Configurar um quiosque >"
+    Write-Warn "conta '$KioskUser' > Microsoft Edge > URL: $Url"
     exit 1
 }
 

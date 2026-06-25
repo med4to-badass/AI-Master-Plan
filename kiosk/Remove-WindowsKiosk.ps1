@@ -27,14 +27,25 @@ if (-not $isAdmin) { Write-Host "Execute como ADMINISTRADOR." -ForegroundColor R
 
 Write-Host "Removendo quiosque nativo..." -ForegroundColor Yellow
 
-# 1. Limpar a configuracao Assigned Access (Configuration vazia)
-$ns    = "root\cimv2\mdm\dmmap"
-$obj   = Get-CimInstance -Namespace $ns -ClassName "MDM_AssignedAccess" -ErrorAction SilentlyContinue
-if ($obj) {
-    $obj.Configuration = ""
-    try { Set-CimInstance -CimInstance $obj; Write-Ok "Assigned Access removido." }
-    catch { Write-Host "  Nao foi possivel limpar Assigned Access automaticamente." -ForegroundColor Yellow }
-}
+# 1. Limpar a configuracao Assigned Access (precisa rodar como SYSTEM)
+$work = Join-Path $env:ProgramData "AuraKiosk"
+New-Item -ItemType Directory -Path $work -Force | Out-Null
+$clearPath = Join-Path $work "clear-assignedaccess.ps1"
+@'
+try {
+    $obj = Get-CimInstance -Namespace "root\cimv2\mdm\dmmap" -ClassName "MDM_AssignedAccess"
+    if ($obj) { $obj.Configuration = ""; Set-CimInstance -CimInstance $obj }
+} catch {}
+'@ | Set-Content -Path $clearPath -Encoding UTF8
+
+$act  = New-ScheduledTaskAction -Execute "powershell.exe" `
+    -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$clearPath`""
+$prin = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+Register-ScheduledTask -TaskName "AuraClearKiosk" -Action $act -Principal $prin -Force | Out-Null
+Start-ScheduledTask -TaskName "AuraClearKiosk"
+Start-Sleep -Seconds 5
+Unregister-ScheduledTask -TaskName "AuraClearKiosk" -Confirm:$false -ErrorAction SilentlyContinue
+Write-Ok "Assigned Access limpo."
 
 # 2. Remover a tarefa do servidor
 Unregister-ScheduledTask -TaskName "AuraServer" -Confirm:$false -ErrorAction SilentlyContinue
