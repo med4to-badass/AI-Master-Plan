@@ -3,7 +3,9 @@ manual_pdf.py
 Gera manual de uso em PDF para o Programa Parceiro Isopor.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+_BRT = timezone(timedelta(hours=-3))
 from io import BytesIO
 from pathlib import Path
 from typing import Any, Dict
@@ -107,7 +109,7 @@ def generate_user_manual(settings: Dict[str, Any] = None) -> BytesIO:
 
     s = _styles()
     story = []
-    now = datetime.now().strftime("%d/%m/%Y às %H:%M")
+    now = datetime.now(tz=_BRT).strftime("%d/%m/%Y às %H:%M")
 
     story.append(Paragraph(f"Manual de Uso", s["title"]))
     story.append(Paragraph(f"{program_name} — Dashboard IsoSoluções", s["subtitle"]))

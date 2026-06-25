@@ -44,7 +44,7 @@ def init_db() -> None:
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             phone TEXT NOT NULL UNIQUE,
-            created_at TEXT NOT NULL DEFAULT (datetime('now'))
+            created_at TEXT NOT NULL DEFAULT (datetime('now', '-3 hours'))
         );
 
         CREATE TABLE IF NOT EXISTS purchases (
@@ -57,7 +57,7 @@ def init_db() -> None:
             final_points INTEGER NOT NULL,
             package_quantity INTEGER NOT NULL DEFAULT 0,
             notes TEXT,
-            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            created_at TEXT NOT NULL DEFAULT (datetime('now', '-3 hours')),
             FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
         );
 
@@ -67,7 +67,7 @@ def init_db() -> None:
             redemption_date TEXT NOT NULL,
             points_redeemed INTEGER NOT NULL DEFAULT 10,
             notes TEXT,
-            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            created_at TEXT NOT NULL DEFAULT (datetime('now', '-3 hours')),
             FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
         );
 
@@ -90,7 +90,7 @@ def init_db() -> None:
             reward_choice TEXT NOT NULL,       -- "cafeteira" (simples por enquanto)
             reward_description TEXT,           -- rótulo bonito do brinde escolhido
             notes TEXT,
-            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            created_at TEXT NOT NULL DEFAULT (datetime('now', '-3 hours')),
             FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
         );
         CREATE INDEX IF NOT EXISTS idx_milestone_client ON milestone_rewards(client_id, reward_date);
@@ -102,8 +102,8 @@ def init_db() -> None:
             content TEXT NOT NULL,
             show_to_clients INTEGER NOT NULL DEFAULT 1,
             is_active INTEGER NOT NULL DEFAULT 1,
-            created_at TEXT NOT NULL DEFAULT (datetime('now')),
-            updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+            created_at TEXT NOT NULL DEFAULT (datetime('now', '-3 hours')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now', '-3 hours'))
         );
         CREATE INDEX IF NOT EXISTS idx_bulletin_active ON bulletin_updates(is_active, show_to_clients);
 
@@ -114,7 +114,7 @@ def init_db() -> None:
             label TEXT NOT NULL,
             old_value TEXT,
             new_value TEXT NOT NULL,
-            changed_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+            changed_at TEXT NOT NULL DEFAULT (datetime('now', '-3 hours'))
         );
         """)
         conn.commit()
@@ -156,7 +156,7 @@ def _migrate_create_milestone_table() -> None:
                 reward_choice TEXT NOT NULL,
                 reward_description TEXT,
                 notes TEXT,
-                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                created_at TEXT NOT NULL DEFAULT (datetime('now', '-3 hours')),
                 FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
             )
         """)
@@ -179,7 +179,7 @@ def _migrate_create_settings_changelog() -> None:
                 label TEXT NOT NULL,
                 old_value TEXT,
                 new_value TEXT NOT NULL,
-                changed_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+                changed_at TEXT NOT NULL DEFAULT (datetime('now', '-3 hours'))
             )
         """)
         conn.commit()
@@ -200,8 +200,8 @@ def _migrate_create_bulletin_table() -> None:
                 content TEXT NOT NULL,
                 show_to_clients INTEGER NOT NULL DEFAULT 1,
                 is_active INTEGER NOT NULL DEFAULT 1,
-                created_at TEXT NOT NULL DEFAULT (datetime('now')),
-                updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+                created_at TEXT NOT NULL DEFAULT (datetime('now', '-3 hours')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now', '-3 hours'))
             )
         """)
         conn.execute(
@@ -1141,7 +1141,7 @@ def update_bulletin_update(
             """
             UPDATE bulletin_updates
             SET title = ?, content = ?, show_to_clients = ?, is_active = ?,
-                updated_at = datetime('now')
+                updated_at = datetime('now', '-3 hours')
             WHERE id = ?
             """,
             (

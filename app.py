@@ -23,7 +23,11 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from datetime import date, datetime
+from datetime import date, datetime, timezone, timedelta
+
+_BRT = timezone(timedelta(hours=-3))
+def now_brt() -> datetime:
+    return datetime.now(tz=_BRT)
 from io import BytesIO
 import os
 import subprocess
@@ -870,7 +874,7 @@ with col_greet:
     today_str = date.today().strftime('%d de %B de %Y').replace('June', 'Junho')
     st.markdown(f"**{admin_welcome}** Hoje é **{today_str}**.")
 with col_date:
-    st.caption(f"Atualizado em {datetime.now().strftime('%H:%M')}")
+    st.caption(f"Atualizado em {now_brt().strftime('%H:%M')}")
 
 render_bulletin_board(client_view=False, max_items=4)
 

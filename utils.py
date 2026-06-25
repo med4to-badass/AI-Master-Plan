@@ -6,7 +6,9 @@ Funções utilitárias:
 - Formatação de datas e valores para o Brasil
 """
 
-from datetime import date, datetime
+from datetime import date, datetime, timezone, timedelta
+
+_BRT = timezone(timedelta(hours=-3))
 from io import BytesIO
 from typing import Any, Dict, List
 
@@ -190,7 +192,7 @@ def export_full_report(
     ws["A1"].alignment = Alignment(horizontal="center")
 
     ws.merge_cells("A2:F2")
-    ws["A2"] = f"IsoSoluções • Gerado em {datetime.now().strftime('%d/%m/%Y às %H:%M')}"
+    ws["A2"] = f"IsoSoluções • Gerado em {datetime.now(tz=_BRT).strftime('%d/%m/%Y às %H:%M')}"
     ws["A2"].font = Font(italic=True, size=10, color="64748b")
     ws["A2"].alignment = Alignment(horizontal="center")
 
