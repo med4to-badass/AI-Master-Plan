@@ -1631,6 +1631,62 @@ with st.sidebar:
                 else:
                     st.warning("Preencha nome e telefone.")
 
+    with st.expander("📥 Importar Clientes via Excel", expanded=False):
+        # Download do template
+        template_path = BASE_DIR / "template_clientes_isosoluces.xlsx"
+        if template_path.exists():
+            with open(template_path, "rb") as _tf:
+                st.download_button(
+                    "⬇️ Baixar template (.xlsx)",
+                    data=_tf.read(),
+                    file_name="template_clientes_isosoluces.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    width='stretch',
+                )
+
+        st.caption("Preencha o template com Nome e Telefone e faça upload abaixo.")
+        uploaded = st.file_uploader("Selecione o Excel preenchido", type=["xlsx"], key="import_xlsx")
+
+        if uploaded:
+            try:
+                df_import = pd.read_excel(uploaded, sheet_name="Clientes", header=0)
+                # Aceita colunas com variações de nome/case
+                col_map = {}
+                for c in df_import.columns:
+                    cl = str(c).lower().strip()
+                    if "nome" in cl:
+                        col_map["name"] = c
+                    elif "tel" in cl or "fone" in cl or "phone" in cl:
+                        col_map["phone"] = c
+
+                if "name" not in col_map or "phone" not in col_map:
+                    st.error("Colunas 'Nome Completo' e 'Telefone' não encontradas na aba 'Clientes'.")
+                else:
+                    rows = df_import[[col_map["name"], col_map["phone"]]].dropna(how="all")
+                    rows = rows[rows[col_map["name"]].astype(str).str.strip() != ""]
+                    rows = rows[rows[col_map["phone"]].astype(str).str.strip() != ""]
+
+                    st.info(f"{len(rows)} cliente(s) encontrado(s) no arquivo.")
+
+                    if st.button("✅ Importar agora", type="primary", width='stretch', key="btn_import_xlsx"):
+                        added, skipped = 0, 0
+                        for _, row in rows.iterrows():
+                            name  = str(row[col_map["name"]]).strip()
+                            phone = str(row[col_map["phone"]]).strip()
+                            if not name or not phone or name.lower() in ("nome completo", "maria silva", "joão pereira", "ana souza"):
+                                skipped += 1
+                                continue
+                            try:
+                                add_client(name, phone)
+                                added += 1
+                            except Exception:
+                                skipped += 1  # telefone duplicado — ignora
+                        refresh_data()
+                        st.success(f"**{added}** cliente(s) importado(s). {skipped} ignorado(s) (duplicados ou linhas de exemplo).")
+                        st.rerun()
+            except Exception as e:
+                st.error(f"Erro ao ler o arquivo: {e}")
+
     st.divider()
 
     # Exportar Excel
