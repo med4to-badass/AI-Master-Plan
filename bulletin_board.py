@@ -91,7 +91,7 @@ def render_bulletin_admin_panel() -> None:
                 height=80,
             )
             new_show_clients = st.checkbox("Exibir no portal do cliente", value=True)
-            if st.form_submit_button("Publicar aviso", type="primary", use_container_width=True):
+            if st.form_submit_button("Publicar aviso", type="primary", width='stretch'):
                 if new_title.strip() and new_content.strip():
                     add_bulletin_update(new_title, new_content, show_to_clients=new_show_clients)
                     st.success("Aviso publicado!")
@@ -138,7 +138,7 @@ def render_bulletin_admin_panel() -> None:
                         )
                         col_save, col_cancel = st.columns(2)
                         with col_save:
-                            if st.form_submit_button("Salvar", type="primary", use_container_width=True):
+                            if st.form_submit_button("Salvar", type="primary", width='stretch'):
                                 update_bulletin_update(
                                     item["id"],
                                     edit_title,
@@ -149,19 +149,19 @@ def render_bulletin_admin_panel() -> None:
                                 st.session_state[edit_key] = False
                                 st.rerun()
                         with col_cancel:
-                            if st.form_submit_button("Cancelar", use_container_width=True):
+                            if st.form_submit_button("Cancelar", width='stretch'):
                                 st.session_state[edit_key] = False
                                 st.rerun()
                 else:
                     col_edit, col_toggle, col_del = st.columns(3)
                     with col_edit:
-                        if st.button("Editar", key=f"btn_edit_{item['id']}", use_container_width=True):
+                        if st.button("Editar", key=f"btn_edit_{item['id']}", width='stretch'):
                             st.session_state[edit_key] = True
                             st.rerun()
                     with col_toggle:
                         new_active = not bool(item.get("is_active"))
                         toggle_label = "Ativar" if new_active else "Ocultar"
-                        if st.button(toggle_label, key=f"btn_toggle_{item['id']}", use_container_width=True):
+                        if st.button(toggle_label, key=f"btn_toggle_{item['id']}", width='stretch'):
                             update_bulletin_update(
                                 item["id"],
                                 item["title"],
@@ -171,6 +171,6 @@ def render_bulletin_admin_panel() -> None:
                             )
                             st.rerun()
                     with col_del:
-                        if st.button("Excluir", key=f"btn_del_{item['id']}", use_container_width=True):
+                        if st.button("Excluir", key=f"btn_del_{item['id']}", width='stretch'):
                             delete_bulletin_update(item["id"])
                             st.rerun()
