@@ -848,7 +848,7 @@ def render_notification_panel(notification: dict):
 
     has_card = notification.get("card_png") is not None
 
-    # Cartão centralizado (max 375px) — sem colunas, funciona em qualquer tela
+    # Cartão centralizado — sem colunas, funciona em qualquer tela
     if has_card:
         import base64 as _b64
         card_b64 = _b64.b64encode(notification["card_png"]).decode()
@@ -856,7 +856,7 @@ def render_notification_panel(notification: dict):
             f"""
             <div style="display:flex; justify-content:center; margin-bottom:0.75rem;">
                 <img src="data:image/png;base64,{card_b64}"
-                     style="width:100%; max-width:375px; border-radius:14px; box-shadow:0 4px 24px rgba(0,0,0,0.5);" />
+                     style="width:100%; max-width:100%; border-radius:14px; box-shadow:0 4px 24px rgba(0,0,0,0.5);" />
             </div>
             <p style="text-align:center; color:#64748b; font-size:0.82rem; margin-top:-0.5rem;">Cartão de Fidelidade</p>
             """,
