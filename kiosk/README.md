@@ -32,6 +32,26 @@ Em ambos, o servidor Streamlit (Python) roda localmente por trás.
 | `Start-Kiosk.ps1` | **Modo B:** sobe o servidor e abre o navegador em tela cheia. |
 | `Stop-Kiosk.ps1` | Encerra o modo B; com `-Uninstall` remove autostart e atalhos. |
 | `loading.html` | Tela de carregamento com a marca; redireciona ao app quando pronto. |
+| `Install-Tunnel.ps1` | Publica o **Portal do Cliente** na internet (baixa o cloudflared). |
+
+## 🌐 Publicar o Portal do Cliente (acesso pelos clientes)
+
+O quiosque mostra o app **localmente**. Para os **clientes** abrirem o portal
+deles pelo celular, o servidor precisa de um **endereço público**. O app já faz
+isso sozinho via **Cloudflare Tunnel** — só falta instalar o `cloudflared`:
+
+```powershell
+# PowerShell como Administrador
+C:\AuraKiosk\kiosk\Install-Tunnel.ps1
+```
+
+Depois abra o **dashboard** (`http://localhost:8501`) e aguarde alguns segundos:
+o app sobe o túnel, salva o endereço público (`public_base_url`) e os **links
+dos clientes** (`.../?view=cliente&id=N`) passam a usar esse endereço.
+
+> ⚠️ O túnel grátis (`trycloudflare.com`) gera um endereço **que muda a cada
+> reinício** do servidor. Para um link **fixo**, use um **Cloudflare Tunnel
+> nomeado** (conta Cloudflare + domínio) ou **ngrok** com domínio reservado.
 
 ## ✨ Otimizações nativas (aplicadas automaticamente)
 

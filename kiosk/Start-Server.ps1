@@ -29,6 +29,11 @@ Set-Location $Root
 $python = Join-Path $Root "venv_win\Scripts\python.exe"
 if (-not (Test-Path $python)) { $python = "python" }
 
+# Se o cloudflared.exe estiver junto do app, o portal do cliente fica online
+# automaticamente (o app usa CLOUDFLARED_BIN para abrir o tunel publico).
+$cloudflared = Join-Path $Root "cloudflared.exe"
+if (Test-Path $cloudflared) { $env:CLOUDFLARED_BIN = $cloudflared }
+
 # --- Experiencia nativa: esconde "cara de web" e reduz consumo ---------------
 # Barra/menu do Streamlit em modo minimo (sem botoes de deploy/rerun/etc).
 $env:STREAMLIT_CLIENT_TOOLBAR_MODE        = "minimal"
