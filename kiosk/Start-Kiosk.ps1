@@ -27,7 +27,7 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Root      = Split-Path -Parent $ScriptDir
 Set-Location $Root
 
-$Url      = "http://localhost:$Port/?view=cliente"
+$Url      = "http://localhost:$Port/"
 $HealthUrl= "http://127.0.0.1:$Port/_stcore/health"
 $Streamlit= Join-Path $Root "venv_win\Scripts\streamlit.exe"
 $Profile  = Join-Path $env:LOCALAPPDATA "AuraKiosk\browser-profile"

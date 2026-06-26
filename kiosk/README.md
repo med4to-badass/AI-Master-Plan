@@ -75,7 +75,8 @@ Parâmetros úteis:
 ```powershell
 .\Set-WindowsKiosk.ps1 -Port 8080
 .\Set-WindowsKiosk.ps1 -KioskUser "Recepcao"
-.\Set-WindowsKiosk.ps1 -Url "http://localhost:8501/?view=cliente"
+.\Set-WindowsKiosk.ps1 -Url "http://localhost:8501/"                 # dashboard
+.\Set-WindowsKiosk.ps1 -Url "http://localhost:8501/?view=cliente&id=1"  # portal do cliente 1
 .\Set-WindowsKiosk.ps1 -UseSplash    # mostra loading.html antes do app
 ```
 > Por padrão o modo A abre o app **direto** (mais robusto no kiosk nativo). O

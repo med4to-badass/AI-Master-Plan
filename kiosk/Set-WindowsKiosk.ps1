@@ -40,7 +40,7 @@ function Write-Step($m){ Write-Host "`n=== $m ===" -ForegroundColor Cyan }
 function Write-Ok($m){ Write-Host "  OK: $m" -ForegroundColor Green }
 function Write-Warn($m){ Write-Host "  ! $m" -ForegroundColor Yellow }
 
-if (-not $Url) { $Url = "http://localhost:$Port/?view=cliente" }
+if (-not $Url) { $Url = "http://localhost:$Port/" }
 
 # ---------------------------------------------------------------------------
 # 0. Pre-checagens: admin + edicao do Windows + Edge
