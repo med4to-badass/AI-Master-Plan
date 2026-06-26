@@ -19,13 +19,13 @@ CARD_TEMPLATE = BASE_DIR / "card_template.png"
 
 # ── Geometria (1080 x 1920) ───────────────────────────────────────────────────
 W, H = 1080, 1920
-HEADER_H = 691          # tudo acima fica = template (logo intacta)
+HEADER_H = 579          # tudo acima fica = template (logo intacta)
 CX = W // 2             # 540
 
 # Painel de conteúdo
 PANEL_X1, PANEL_X2 = 70, W - 70
-PANEL_TOP, PANEL_BOT = 774, 1792
-HEADER_BAR_BOT = 873
+PANEL_TOP, PANEL_BOT = 650, 1792
+HEADER_BAR_BOT = 749
 
 # Barra de progresso
 BAR_X1, BAR_X2 = 121, W - 121
@@ -89,7 +89,7 @@ def _tracked_text(draw: ImageDraw.ImageDraw, cx: int, cy: int, text: str,
 
 # ── Base: header do template + gradiente contínuo abaixo ──────────────────────
 def _base_canvas(top=(44, 54, 63), bottom=(20, 26, 33)) -> Image.Image:
-    tpl = Image.open(CARD_TEMPLATE).convert("RGB").resize((W, H), Image.LANCZOS)
+    tpl = Image.open(CARD_TEMPLATE).convert("RGB")
     grad = Image.new("RGB", (1, H))
     for y in range(H):
         if y < HEADER_H:
@@ -135,7 +135,7 @@ def _seg_bar(img: Image.Image, pct: float, color=TEAL) -> Image.Image:
     return img
 
 
-def _rows(img: Image.Image, rows, y0=1260, step=79) -> Image.Image:
+def _rows(img: Image.Image, rows, y0=1148, step=79) -> Image.Image:
     draw = ImageDraw.Draw(img)
     y = y0
     for label, value in rows:
@@ -167,10 +167,10 @@ def generate_points_card(
 
     if is_milestone:
         # ── CARTÃO MARCO (500 pontos) ────────────────────────────────────────
-        img = _glow(img, (CX, 1047), f"{MILESTONE_TARGET}",
+        img = _glow(img, (CX, 935), f"{MILESTONE_TARGET}",
                     _load_font(170, bold=True), TEAL, TEAL, radius=20)
         draw = ImageDraw.Draw(img)
-        _tracked_text(draw, CX, 1168, "PONTOS — MARCO ATINGIDO",
+        _tracked_text(draw, CX, 1056, "PONTOS — MARCO ATINGIDO",
                       _load_font(25, bold=True), WHITE, spacing=4)
 
         img = _rows(img, [
@@ -186,11 +186,11 @@ def generate_points_card(
 
     else:
         # ── CARTÃO DE COMPRA ─────────────────────────────────────────────────
-        img = _glow(img, (CX, 1047), f"+{points_earned}",
+        img = _glow(img, (CX, 935), f"+{points_earned}",
                     _load_font(170, bold=True), TEAL, TEAL, radius=20)
         draw = ImageDraw.Draw(img)
         pts_word = "PONTO GANHO" if points_earned == 1 else "PONTOS GANHOS"
-        _tracked_text(draw, CX, 1165, pts_word, _load_font(26, bold=True), WHITE, spacing=6)
+        _tracked_text(draw, CX, 1053, pts_word, _load_font(26, bold=True), WHITE, spacing=6)
 
         remaining = points_to_next_package if points_to_next_package > 0 else pkg_info["remaining"]
         img = _rows(img, [
