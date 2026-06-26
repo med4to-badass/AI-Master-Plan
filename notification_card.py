@@ -3,7 +3,7 @@ notification_card.py
 Gera o cartão de fidelidade (PNG) no estilo "Corporate" (linhas estruturadas):
 mantém o cabeçalho/logo do card_template.png intacto e redesenha a área de
 conteúdo abaixo com painel organizado, dados em linhas e barra de progresso real.
-Resolução: 1080 x 1920 (Full-HD portrait).
+Resolução: 1080 x 2400 (smartphone moderno).
 """
 
 from io import BytesIO
@@ -17,19 +17,19 @@ from calculations import format_currency, get_milestone_progress
 BASE_DIR = Path(__file__).parent
 CARD_TEMPLATE = BASE_DIR / "card_template.png"
 
-# ── Geometria (1080 x 1920) ───────────────────────────────────────────────────
-W, H = 1080, 1920
-HEADER_H = 691          # tudo acima fica = template (logo intacta)
+# ── Geometria (1080 x 2400) ───────────────────────────────────────────────────
+W, H = 1080, 2400
+HEADER_H = 864          # tudo acima fica = template (logo intacta)
 CX = W // 2             # 540
 
 # Painel de conteúdo
 PANEL_X1, PANEL_X2 = 70, W - 70
-PANEL_TOP, PANEL_BOT = 774, 1792
-HEADER_BAR_BOT = 873
+PANEL_TOP, PANEL_BOT = 968, 2240
+HEADER_BAR_BOT = 1091
 
 # Barra de progresso
 BAR_X1, BAR_X2 = 121, W - 121
-BAR_TOP, BAR_BOT = 1607, 1649
+BAR_TOP, BAR_BOT = 2009, 2061
 
 # Cores
 TEAL      = (0, 224, 214)
@@ -135,7 +135,7 @@ def _seg_bar(img: Image.Image, pct: float, color=TEAL) -> Image.Image:
     return img
 
 
-def _rows(img: Image.Image, rows, y0=1260, step=79) -> Image.Image:
+def _rows(img: Image.Image, rows, y0=1575, step=99) -> Image.Image:
     draw = ImageDraw.Draw(img)
     y = y0
     for label, value in rows:
@@ -167,10 +167,10 @@ def generate_points_card(
 
     if is_milestone:
         # ── CARTÃO MARCO (500 pontos) ────────────────────────────────────────
-        img = _glow(img, (CX, 1047), f"{MILESTONE_TARGET}",
+        img = _glow(img, (CX, 1309), f"{MILESTONE_TARGET}",
                     _load_font(170, bold=True), TEAL, TEAL, radius=20)
         draw = ImageDraw.Draw(img)
-        _tracked_text(draw, CX, 1168, "PONTOS — MARCO ATINGIDO",
+        _tracked_text(draw, CX, 1460, "PONTOS — MARCO ATINGIDO",
                       _load_font(25, bold=True), WHITE, spacing=4)
 
         img = _rows(img, [
@@ -181,16 +181,16 @@ def generate_points_card(
         ])
         img = _seg_bar(img, 1.0)
         draw = ImageDraw.Draw(img)
-        draw.text((CX, 1730), "☕  Sua recompensa pela fidelidade já está pronta!",
+        draw.text((CX, 2163), "☕  Sua recompensa pela fidelidade já está pronta!",
                   font=_load_font(19, bold=True), fill=TEAL, anchor="mm")
 
     else:
         # ── CARTÃO DE COMPRA ─────────────────────────────────────────────────
-        img = _glow(img, (CX, 1047), f"+{points_earned}",
+        img = _glow(img, (CX, 1309), f"+{points_earned}",
                     _load_font(170, bold=True), TEAL, TEAL, radius=20)
         draw = ImageDraw.Draw(img)
         pts_word = "PONTO GANHO" if points_earned == 1 else "PONTOS GANHOS"
-        _tracked_text(draw, CX, 1165, pts_word, _load_font(26, bold=True), WHITE, spacing=6)
+        _tracked_text(draw, CX, 1456, pts_word, _load_font(26, bold=True), WHITE, spacing=6)
 
         remaining = points_to_next_package if points_to_next_package > 0 else pkg_info["remaining"]
         img = _rows(img, [
@@ -201,7 +201,7 @@ def generate_points_card(
         ])
         img = _seg_bar(img, current_points / float(MILESTONE_TARGET))
         draw = ImageDraw.Draw(img)
-        draw.text((CX, 1730), "☕  Recompensa ao atingir a meta: Cafeteira",
+        draw.text((CX, 2163), "☕  Recompensa ao atingir a meta: Cafeteira",
                   font=_load_font(19, bold=True), fill=TEAL, anchor="mm")
 
     buffer = BytesIO()
