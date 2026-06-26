@@ -900,8 +900,8 @@ def render_notification_panel(notification: dict):
         if notification.get("card_png"):
             card_b64 = base64.b64encode(notification["card_png"]).decode()
         file_name = json.dumps(f"cartao_pontos_{first_name}.png")
-        st.components.v1.html(
-            f"""
+        st.html(
+            f"""<div style="height:0;overflow:hidden;">
             <script>
                 (function() {{
                     var b64 = {json.dumps(card_b64)};
@@ -919,9 +919,7 @@ def render_notification_panel(notification: dict):
                     }}
                     window.open({safe_url}, "_blank");
                 }})();
-            </script>
-            """,
-            height=0,
+            </script></div>"""
         )
         st.info("Cartão baixado e WhatsApp aberto automaticamente. Anexe o PNG na conversa antes de enviar.")
 
